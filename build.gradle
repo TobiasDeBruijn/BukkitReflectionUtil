@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'maven-publish'
+}
+
+version = "1.0"
+group = "dev.array21"
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = "BukkitReflectionLib"
+            version = "1.0"
+			group = "dev.array21"
+
+            from components.java
+        }
+    }
+}
