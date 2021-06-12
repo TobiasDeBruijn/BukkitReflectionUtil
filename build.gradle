@@ -1,23 +1,89 @@
 plugins {
     id 'java'
     id 'eclipse'
+    id 'signing'
     id 'maven-publish'
 }
 
 version = "1.0"
 group = "dev.array21"
 
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
+sourceCompatibility = 1.16
+targetCompatibility = 1.16
+
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
 publishing {
-    publications {
-        maven(MavenPublication) {
-            artifactId = "BukkitReflectionLib"
-            version = "1.0"
-			group = "dev.array21"
+	repositories {
+		maven {
+			name = "ossrh"
+			url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+			credentials {
+				username = findProperty('ossrhUsername')
+				password = findProperty('ossrhPassword')
+			}
+		}
+		
+		// Uncomment this only if your version ends with -SNAPSHOT, you'll get a 400 otherwhise.
+		/*
+		maven {
+			name = "ossrhSnapshot"
+			url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+			credentials {
+				username = findProperty('ossrhUsername')
+				password = findProperty('ossrhPassword')
+			}
+		}*/
+	}
 
-            from components.java
-        }
-    }
+	publications {
+    	mavenJava(MavenPublication) {
+      		from components.java
+      		artifact sourcesJar
+      		artifact javadocJar
+      		
+			pom {
+		    	name = 'BukkitReflectionUtil'
+		    	artifactId = 'bukkit-reflection-util'
+		    	packaging = 'jar'
+		    	description = 'Reflection Utilities for Minecraft Bukkit/Spigot'
+		    	url = 'https://github.com/TheDutchMC/BukkitReflectionUtil'
+			
+				scm {
+					connection = 'scm:git:git://github.com/TheDutchMC/BukkitReflectionUtil.git'
+					developerConnection = 'scm:git:ssh://github.com/TheDutchMC/BukkitReflectionUtil.git'
+					url = 'https://github.com/TheDutchMC/BukkitReflectionUtil'
+				}
+		
+		    	licenses {
+		      		license {
+		        		name = 'MIT Licence'
+		        		url = 'https://github.com/TheDutchMC/BukkitReflectionUtil/blob/master/LICENSE'
+		      		}
+	    		}
+		
+		    	developers {
+		      		developer {
+		        		id = 'tobiasdebruijn'
+		        		name = 'Tobias de Bruijn'
+		        		email = 't.debruijn@array21.dev'
+		      		}
+		    	}
+		    }
+    	}
+	}
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }

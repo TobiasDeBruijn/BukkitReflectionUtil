@@ -24,6 +24,18 @@ public class ReflectionUtil {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * Check if the new way of packaging Spigot is used<br>
+	 * For >=1.17 this will be true, for =<1.16 this will be false.<br>
+	 * 
+	 * This dictates if you should use {@link #getNmsClass(String)} (<=1.16) or {@link #getMinecraftClass(String)} (>=1.17).
+	 * @return Returns true if it is, false if it is now
+	 */
+	public static boolean isUseNewSpigotPackaging() {
+		String major = SERVER_VERSION.split("_")[1];
+		return Integer.valueOf(major) >= 17;
+	}
 
 	/**
 	 * Get a Class from the org.bukkit.craftbukkit.SERVER_VERSION. package
@@ -35,14 +47,29 @@ public class ReflectionUtil {
 		return Class.forName("org.bukkit.craftbukkit." + SERVER_VERSION + "." + className);
 	}
 	
-	/**
+	/** 
+	 * <strong>1.16 and older only</strong>
+	 * 
 	 * Get a Class from the net.minecraft.server.SERVER_VERSION. package
 	 * @param className The name of the class
 	 * @return Returns the Class
 	 * @throws ClassNotFoundException Thrown when the Class was not found
 	 */
+	@Deprecated
 	public static Class<?> getNmsClass(String className) throws ClassNotFoundException {
 		return Class.forName("net.minecraft.server." + SERVER_VERSION + "." + className);
+	}
+	
+	/**
+	 * <strong>1.17 and new only</strong>
+	 * 
+	 * Get a Class from the net.minecraft package
+	 * @param className The name of the class
+	 * @return Returns the class
+	 * @throws ClassNotFoundException Thrown when the Class was not found
+	 */
+	public static Class<?> getMinecraftClass(String className) throws ClassNotFoundException {
+		return Class.forName("net.minecraft." + className);
 	}
 	
 	/**
