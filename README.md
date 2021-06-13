@@ -1,6 +1,7 @@
 # BukkitReflectionUtil
 Utility to make working with NMS code easier on Spigot
 
+[![Maven Central](https://img.shields.io/maven-central/v/dev.array21/bukkit-reflection-util.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22dev.array21%22%20AND%20a:%22bukkit-reflection-util%22)
 ## Installation
 BukkitReflectionUtil is available on MavenCentral:
 ```groovy
