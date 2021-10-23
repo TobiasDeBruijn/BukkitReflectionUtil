@@ -24,11 +24,11 @@ import dev.array21.bukkitreflectionutil.ReflectionUtil;
 
 Class<?> entityHumanClass;
 if(ReflectionUtil.isUseNewSpigotPackaging()) {
-    // Minecraft 1.17+
+    // >= Minecraft 1.17
     entityHumanClass = ReflectionUtil.getMinecraftClass("world.entity.player.EntityHuman");
 } else {
-    // Minecraft 1.16-
-    // This method is also marked as @Depricated !
+    // =< Minecraft1.16
+    // This method is also marked as @Deprecated !
     entityHumanClass = ReflectionUtil.getNmsClass("EntityHuman");
 }
 ```
