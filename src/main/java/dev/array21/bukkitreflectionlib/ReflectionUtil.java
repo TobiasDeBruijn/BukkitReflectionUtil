@@ -5,36 +5,38 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.StringJoiner;
 
 public class ReflectionUtil {
 
 	public static String SERVER_VERSION;
-		
+	private static boolean useNewSpigotPackaging;
+
 	static {
 		try {
 			Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
 			Object serverObject = getMethod(bukkitClass, "getServer").invoke(null);
 			String serverPackageName = serverObject.getClass().getPackage().getName();
-			
+
 			SERVER_VERSION = serverPackageName.substring(serverPackageName.lastIndexOf('.') +1);
-		
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+
+			String major = SERVER_VERSION.split("_")[1];
+			useNewSpigotPackaging = Integer.parseInt(major) >= 17;
+
+		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Check if the new way of packaging Spigot is used<br>
 	 * For >=1.17 this will be true, for =<1.16 this will be false.<br>
-	 * 
+	 *
 	 * This dictates if you should use {@link #getNmsClass(String)} (<=1.16) or {@link #getMinecraftClass(String)} (>=1.17).
 	 * @return Returns true if it is, false if it is now
 	 */
 	public static boolean isUseNewSpigotPackaging() {
-		String major = SERVER_VERSION.split("_")[1];
-		return Integer.valueOf(major) >= 17;
+		return useNewSpigotPackaging;
 	}
 
 	/**
@@ -46,10 +48,10 @@ public class ReflectionUtil {
 	public static Class<?> getBukkitClass(String className) throws ClassNotFoundException {
 		return Class.forName("org.bukkit.craftbukkit." + SERVER_VERSION + "." + className);
 	}
-	
-	/** 
+
+	/**
 	 * <strong>1.16 and older only</strong>
-	 * 
+	 *
 	 * Get a Class from the net.minecraft.server.SERVER_VERSION. package
 	 * @param className The name of the class
 	 * @return Returns the Class
@@ -59,10 +61,10 @@ public class ReflectionUtil {
 	public static Class<?> getNmsClass(String className) throws ClassNotFoundException {
 		return Class.forName("net.minecraft.server." + SERVER_VERSION + "." + className);
 	}
-	
+
 	/**
 	 * <strong>1.17 and new only</strong>
-	 * 
+	 *
 	 * Get a Class from the net.minecraft package
 	 * @param className The name of the class
 	 * @return Returns the class
@@ -71,7 +73,7 @@ public class ReflectionUtil {
 	public static Class<?> getMinecraftClass(String className) throws ClassNotFoundException {
 		return Class.forName("net.minecraft." + className);
 	}
-	
+
 	/**
 	 * Get the Constructor of a Class
 	 * @param clazz The Class in which the Constructor is defined
@@ -82,51 +84,41 @@ public class ReflectionUtil {
 	public static Constructor<?> getConstructor(Class<?> clazz, Class<?>... args) throws NoSuchMethodException {
 		Constructor<?> con = clazz.getConstructor(args);
 		con.setAccessible(true);
-		
+
 		return con;
 	}
-	
+
 	/**
 	 * Get an Enum from an Enum constant
 	 * @param clazz The Class in which the Enum is defined
 	 * @param constant The name of the Enum Constant
-	 * @return Returns the Enum
-	 * @throws ClassNotFoundException
+	 * @return Returns the Enum or null if the Enum does not have a member called <i>constant</i>
 	 */
-	public static Enum<?> getEnum(Class<?> clazz, String constant) throws ClassNotFoundException {
-		Class<?> c = Class.forName(clazz.getName());
-		Enum<?>[] constants = (Enum<?>[]) c.getEnumConstants();
-		
+	public static Enum<?> getEnum(Class<?> clazz, String constant) {
+		Enum<?>[] constants = (Enum<?>[]) clazz.getEnumConstants();
+
 		for(Enum<?> e : constants) {
 			if(e.name().equalsIgnoreCase(constant)) {
 				return e;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Get an Enum constant by it's name and constant
 	 * @param clazz The Class in which the Enum is defined
 	 * @param enumname The name of the Enum
 	 * @param constant The name of the Constant
-	 * @return Returns the Enum
-	 * @throws ClassNotFoundException
+	 * @return Returns the Enum or null if the Enum does not have a member called <i>constant</i>
+	 * @throws ClassNotFoundException If the Class does not have an Enum called <i>enumname</i>
 	 */
 	public static Enum<?> getEnum(Class<?> clazz, String enumname, String constant) throws ClassNotFoundException {
 	    Class<?> c = Class.forName(clazz.getName() + "$" + enumname);
-	    Enum<?>[] econstants = (Enum<?>[]) c.getEnumConstants();
-	    
-	    for (Enum<?> e : econstants) {
-	        if (e.name().equalsIgnoreCase(constant)) {
-	            return e;
-	        }
-	    }
-	
-	    return null;
+	    return getEnum(c, constant);
 	}
-	
+
 	/**
 	 * Get a Field
 	 * @param clazz The Class in which the Field is defined
@@ -139,7 +131,7 @@ public class ReflectionUtil {
 	    f.setAccessible(true);
 	    return f;
 	}
-	
+
 	/**
 	 * Get a Method
 	 * @param clazz The Class in which the Method is defined
@@ -153,7 +145,7 @@ public class ReflectionUtil {
 	    m.setAccessible(true);
 	    return m;
 	}
-	
+
 	/**
 	 * Invoke a Method which takes no arguments. The Class in which the Method is defined is derived from the provided Object
 	 * @param obj The object to invoke the method on
@@ -165,10 +157,9 @@ public class ReflectionUtil {
 	 * @throws InvocationTargetException
 	 */
 	public static Object invokeMethod(Object obj, String methodName) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Method m = getMethod(obj.getClass(), methodName);
-		return m.invoke(obj);
+		return invokeMethod(obj.getClass(), obj, methodName);
 	}
-	
+
 	/**
 	 * Invoke a Method where the argument types are derived from the provided arguments. The Class in which the Method is defined is derived from the provided Object
 	 * @param obj The object to invoke the method on
@@ -183,7 +174,7 @@ public class ReflectionUtil {
 	public static Object invokeMethod(Object obj, String methodName, Object[] args) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return invokeMethod(obj.getClass(), obj, methodName, args);
 	}
-	
+
 	/**
 	 * Invoke a Method where the argument types are explicitly given (Helpful when working with primitives). The Class in which the Method is defined is derived from the provided Object.
 	 * @param obj The Object to invoke the method on
@@ -197,10 +188,9 @@ public class ReflectionUtil {
 	 * @throws InvocationTargetException
 	 */
 	public static Object invokeMethod(Object obj, String methodName, Class<?>[] argTypes, Object[] args) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Method m = getMethod(obj.getClass(), methodName, argTypes);
-		return m.invoke(obj, args);
+		return invokeMethod(obj.getClass(), obj, methodName, argTypes, args);
 	}
-	
+
 	/**
 	 * Invoke a Method where the Class where to find the method is explicitly given (Helpful if the method is located in a superclass). The argument types are derived from the provided arguments
 	 * @param clazz The Class where the method is located
@@ -218,12 +208,10 @@ public class ReflectionUtil {
 		for(int i = 0; i < args.length; i++) {
 			argTypes[i] = args[i].getClass();
 		}
-		
-		Method m = getMethod(clazz, methodName, argTypes);
-		
-		return m.invoke(obj, args);
+
+		return invokeMethod(clazz, obj, methodName, argTypes, args);
 	}
-	
+
 	/**
 	 * Invoke a Method where the Class where the Method is defined is explicitly given, and the argument types are explicitly given
 	 * @param clazz The Class in which the Method is located
@@ -241,7 +229,7 @@ public class ReflectionUtil {
 		Method m = getMethod(clazz, methodName, argTypes);
 		return m.invoke(obj, args);
 	}
-	
+
 	/**
 	 * Get the value of a Field, where the Class in which the field is defined is derived from the provided Object
 	 * @param obj The object in which the field is located, and from which to get the value
@@ -252,10 +240,9 @@ public class ReflectionUtil {
 	 * @throws IllegalAccessException
 	 */
 	public static Object getObject(Object obj, String name) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-		Field f = getField(obj.getClass(), name);
-		return f.get(obj);
+		return getObject(obj.getClass(), obj, name);
 	}
-	
+
 	/**
 	 * Get the value of a Field, where the Class in which the Field is defined is explicitly given. (Helpful when the Field is in a superclass)
 	 * @param obj The Object to get the value from
@@ -265,12 +252,29 @@ public class ReflectionUtil {
 	 * @throws NoSuchFieldException
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
+	 * @deprecated Use {@link #getObject(Class, Object, String)} instead
 	 */
+	@Deprecated
 	public static Object getObject(Object obj, Class<?> clazz, String name) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		return getObject(clazz, obj, name);
+	}
+
+	/**
+	 * Get the value of a Field, where the Class in which the Field is defined is explicitly given. (Helpful when the Field is in a superclass)
+	 * @param clazz The Class in which the Field is defined
+	 * @param obj The Object to get the value from
+	 * @param name The name of the Field
+	 * @return Returns the value of the Field
+	 * @throws NoSuchFieldException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static Object getObject(Class<?> clazz, Object obj, String name) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 		Field f = getField(clazz, name);
+		f.setAccessible(true);
 		return f.get(obj);
 	}
-	
+
 	/**
 	 * Invoke a Class' constructor. The argument types are derived from the provided arguments
 	 * @param clazz The Class in which the Constructor is defined
@@ -287,16 +291,14 @@ public class ReflectionUtil {
 		for(int i = 0; i < args.length; i++) {
 			argTypes[i] = args[i].getClass();
 		}
-		
-		Constructor<?> con = getConstructor(clazz, argTypes);
-		
-		return con.newInstance(args);
+
+		return invokeConstructor(clazz, argTypes, args);
 	}
-	
+
 	/**
 	 * Invoke a Class' Constructor, where the argument types are explicitly given (Helpful when working with primitives)
 	 * @param clazz The Class in which the Constructor is defined
-	 * @param argTypes The argument types 
+	 * @param argTypes The argument types
 	 * @param args The arguments to pass to the constructor
 	 * @return Returns an instance of the provided Class in which the Constructor is located
 	 * @throws NoSuchMethodException
@@ -309,32 +311,38 @@ public class ReflectionUtil {
 		Constructor<?> con = getConstructor(clazz, argTypes);
 		return con.newInstance(args);
 	}
-	
+
 	/**
 	 * Print all Methods in a Class with their parameters. Will print the Method's modifiers, return type, name and arguments and their types
-	 * @param clazz The Class to look in
+	 * @param clazz The class to get methods from
 	 */
 	public static void printMethodsInClass(Class<?> clazz) {
 		System.out.println("Methods in " + clazz.getName() + ":");
-		
+
 		for(Method m : clazz.getDeclaredMethods()) {
-			String print = getModifiers(m.getModifiers()) + " " + m.getReturnType().getName() + " " + m.getName() + "(";
-			for(int i = 0; i < m.getParameterTypes().length; i++) {
-				print += m.getParameterTypes()[i].getName();
-				
-				if(i != m.getParameterTypes().length -1) {
-					print += ", ";
+			StringBuilder print = new StringBuilder(128);
+			print.append(getModifiers(m.getModifiers())).append(" ");
+			print.append(m.getReturnType().getName()).append(" ");
+			print.append(m.getName()).append("(");
+
+			Class<?>[] parameterTypes = m.getParameterTypes();
+			int parameterTypesLength = parameterTypes.length;
+			for(int i = 0; i < parameterTypesLength; i++) {
+				print.append(parameterTypes[i].getName());
+
+				if(i != parameterTypesLength - 1) {
+					print.append(", ");
 				}
 			}
-			
-			print += ")";
-			System.out.println(print.strip());
+
+			print.append(")");
+			System.out.println(print.toString().strip());
 		}
 	}
-	
+
 	/**
 	 * Print all Fields in a Class. Will print the Field's modifiers, type and name
-	 * @param clazz
+	 * @param clazz The class to get fields from
 	 */
 	public static void printFieldsInClass(Class<?> clazz) {
 		System.out.println("Fields in " + clazz.getName() + ":");
@@ -343,7 +351,7 @@ public class ReflectionUtil {
 			System.out.println(print.strip());
 		}
 	}
-	
+
 	/**
 	 * Get modifiers as a String
 	 * @param modifiers int value of the modifiers
@@ -353,55 +361,55 @@ public class ReflectionUtil {
 	 * @see Method#getModifiers()
 	 */
 	private static String getModifiers(int modifiers) {
-		String modifiersStr = "";		
+		StringJoiner modifiersStr = new StringJoiner(" ");
 		if(Modifier.isPrivate(modifiers)) {
-			modifiersStr += " private";
+			modifiersStr.add("private");
 		}
-		
+
 		if(Modifier.isProtected(modifiers)) {
-			modifiersStr += " protected";
+			modifiersStr.add("protected");
 		}
-		
+
 		if(Modifier.isPublic(modifiers)) {
-			modifiersStr += " public";
+			modifiersStr.add("public");
 		}
-		
+
 		if(Modifier.isAbstract(modifiers)) {
-			modifiersStr += " abstract";
+			modifiersStr.add("abstract");
 		}
-		
+
 		if(Modifier.isStatic(modifiers)) {
-			modifiersStr += " static";
+			modifiersStr.add("static");
 		}
-		
+
 		if(Modifier.isFinal(modifiers)) {
-			modifiersStr += " static";
+			modifiersStr.add("static");
 		}
-		
+
 		if(Modifier.isTransient(modifiers)) {
-			modifiersStr += " transient";
+			modifiersStr.add("transient");
 		}
-		
+
 		if(Modifier.isVolatile(modifiers)) {
-			modifiersStr += " volatile";
+			modifiersStr.add("volatile");
 		}
-		
+
 		if(Modifier.isNative(modifiers)) {
-			modifiersStr += " native";
+			modifiersStr.add("native");
 		}
-		
+
 		if(Modifier.isStrict(modifiers)) {
-			modifiersStr += " strictfp";
+			modifiersStr.add("strictfp");
 		}
-		
+
 		if(Modifier.isSynchronized(modifiers)) {
-			modifiersStr += " synchronized";
+			modifiersStr.add("synchronized");
 		}
-		
+
 		if(Modifier.isInterface(modifiers)) {
-			modifiersStr += " interface";
+			modifiersStr.add("interface");
 		}
-				
-		return modifiersStr.strip();	
+
+		return modifiersStr.toString().strip();
     }
 }
