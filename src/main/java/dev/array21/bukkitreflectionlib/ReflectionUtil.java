@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.StringJoiner;
 
 public class ReflectionUtil {
 
@@ -47,10 +48,10 @@ public class ReflectionUtil {
 	public static Class<?> getBukkitClass(String className) throws ClassNotFoundException {
 		return Class.forName("org.bukkit.craftbukkit." + SERVER_VERSION + "." + className);
 	}
-	
-	/** 
+
+	/**
 	 * <strong>1.16 and older only</strong>
-	 * 
+	 *
 	 * Get a Class from the net.minecraft.server.SERVER_VERSION. package
 	 * @param className The name of the class
 	 * @return Returns the Class
@@ -60,10 +61,10 @@ public class ReflectionUtil {
 	public static Class<?> getNmsClass(String className) throws ClassNotFoundException {
 		return Class.forName("net.minecraft.server." + SERVER_VERSION + "." + className);
 	}
-	
+
 	/**
 	 * <strong>1.17 and new only</strong>
-	 * 
+	 *
 	 * Get a Class from the net.minecraft package
 	 * @param className The name of the class
 	 * @return Returns the class
@@ -72,7 +73,7 @@ public class ReflectionUtil {
 	public static Class<?> getMinecraftClass(String className) throws ClassNotFoundException {
 		return Class.forName("net.minecraft." + className);
 	}
-	
+
 	/**
 	 * Get the Constructor of a Class
 	 * @param clazz The Class in which the Constructor is defined
@@ -83,10 +84,10 @@ public class ReflectionUtil {
 	public static Constructor<?> getConstructor(Class<?> clazz, Class<?>... args) throws NoSuchMethodException {
 		Constructor<?> con = clazz.getConstructor(args);
 		con.setAccessible(true);
-		
+
 		return con;
 	}
-	
+
 	/**
 	 * Get an Enum from an Enum constant
 	 * @param clazz The Class in which the Enum is defined
@@ -130,7 +131,7 @@ public class ReflectionUtil {
 	    f.setAccessible(true);
 	    return f;
 	}
-	
+
 	/**
 	 * Get a Method
 	 * @param clazz The Class in which the Method is defined
@@ -144,6 +145,7 @@ public class ReflectionUtil {
 	    m.setAccessible(true);
 	    return m;
 	}
+
 	/**
 	 * Invoke a Method which takes no arguments. The Class in which the Method is defined is derived from the provided Object
 	 * @param obj The object to invoke the method on
@@ -289,16 +291,14 @@ public class ReflectionUtil {
 		for(int i = 0; i < args.length; i++) {
 			argTypes[i] = args[i].getClass();
 		}
-		
-		Constructor<?> con = getConstructor(clazz, argTypes);
-		
-		return con.newInstance(args);
+
+		return invokeConstructor(clazz, argTypes, args);
 	}
-	
+
 	/**
 	 * Invoke a Class' Constructor, where the argument types are explicitly given (Helpful when working with primitives)
 	 * @param clazz The Class in which the Constructor is defined
-	 * @param argTypes The argument types 
+	 * @param argTypes The argument types
 	 * @param args The arguments to pass to the constructor
 	 * @return Returns an instance of the provided Class in which the Constructor is located
 	 * @throws NoSuchMethodException
@@ -311,32 +311,38 @@ public class ReflectionUtil {
 		Constructor<?> con = getConstructor(clazz, argTypes);
 		return con.newInstance(args);
 	}
-	
+
 	/**
 	 * Print all Methods in a Class with their parameters. Will print the Method's modifiers, return type, name and arguments and their types
-	 * @param clazz The Class to look in
+	 * @param clazz The class to get methods from
 	 */
 	public static void printMethodsInClass(Class<?> clazz) {
 		System.out.println("Methods in " + clazz.getName() + ":");
-		
+
 		for(Method m : clazz.getDeclaredMethods()) {
-			String print = getModifiers(m.getModifiers()) + " " + m.getReturnType().getName() + " " + m.getName() + "(";
-			for(int i = 0; i < m.getParameterTypes().length; i++) {
-				print += m.getParameterTypes()[i].getName();
-				
-				if(i != m.getParameterTypes().length -1) {
-					print += ", ";
+			StringBuilder print = new StringBuilder(128);
+			print.append(getModifiers(m.getModifiers())).append(" ");
+			print.append(m.getReturnType().getName()).append(" ");
+			print.append(m.getName()).append("(");
+
+			Class<?>[] parameterTypes = m.getParameterTypes();
+			int parameterTypesLength = parameterTypes.length;
+			for(int i = 0; i < parameterTypesLength; i++) {
+				print.append(parameterTypes[i].getName());
+
+				if(i != parameterTypesLength - 1) {
+					print.append(", ");
 				}
 			}
-			
-			print += ")";
-			System.out.println(print.strip());
+
+			print.append(")");
+			System.out.println(print.toString().strip());
 		}
 	}
-	
+
 	/**
 	 * Print all Fields in a Class. Will print the Field's modifiers, type and name
-	 * @param clazz
+	 * @param clazz The class to get fields from
 	 */
 	public static void printFieldsInClass(Class<?> clazz) {
 		System.out.println("Fields in " + clazz.getName() + ":");
@@ -345,7 +351,7 @@ public class ReflectionUtil {
 			System.out.println(print.strip());
 		}
 	}
-	
+
 	/**
 	 * Get modifiers as a String
 	 * @param modifiers int value of the modifiers
@@ -355,55 +361,55 @@ public class ReflectionUtil {
 	 * @see Method#getModifiers()
 	 */
 	private static String getModifiers(int modifiers) {
-		String modifiersStr = "";		
+		StringJoiner modifiersStr = new StringJoiner(" ");
 		if(Modifier.isPrivate(modifiers)) {
-			modifiersStr += " private";
+			modifiersStr.add("private");
 		}
-		
+
 		if(Modifier.isProtected(modifiers)) {
-			modifiersStr += " protected";
+			modifiersStr.add("protected");
 		}
-		
+
 		if(Modifier.isPublic(modifiers)) {
-			modifiersStr += " public";
+			modifiersStr.add("public");
 		}
-		
+
 		if(Modifier.isAbstract(modifiers)) {
-			modifiersStr += " abstract";
+			modifiersStr.add("abstract");
 		}
-		
+
 		if(Modifier.isStatic(modifiers)) {
-			modifiersStr += " static";
+			modifiersStr.add("static");
 		}
-		
+
 		if(Modifier.isFinal(modifiers)) {
-			modifiersStr += " static";
+			modifiersStr.add("static");
 		}
-		
+
 		if(Modifier.isTransient(modifiers)) {
-			modifiersStr += " transient";
+			modifiersStr.add("transient");
 		}
-		
+
 		if(Modifier.isVolatile(modifiers)) {
-			modifiersStr += " volatile";
+			modifiersStr.add("volatile");
 		}
-		
+
 		if(Modifier.isNative(modifiers)) {
-			modifiersStr += " native";
+			modifiersStr.add("native");
 		}
-		
+
 		if(Modifier.isStrict(modifiers)) {
-			modifiersStr += " strictfp";
+			modifiersStr.add("strictfp");
 		}
-		
+
 		if(Modifier.isSynchronized(modifiers)) {
-			modifiersStr += " synchronized";
+			modifiersStr.add("synchronized");
 		}
-		
+
 		if(Modifier.isInterface(modifiers)) {
-			modifiersStr += " interface";
+			modifiersStr.add("interface");
 		}
-				
-		return modifiersStr.strip();	
+
+		return modifiersStr.toString().strip();
     }
 }
