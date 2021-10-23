@@ -91,43 +91,33 @@ public class ReflectionUtil {
 	 * Get an Enum from an Enum constant
 	 * @param clazz The Class in which the Enum is defined
 	 * @param constant The name of the Enum Constant
-	 * @return Returns the Enum
-	 * @throws ClassNotFoundException
+	 * @return Returns the Enum or null if the Enum does not have a member called <i>constant</i>
 	 */
-	public static Enum<?> getEnum(Class<?> clazz, String constant) throws ClassNotFoundException {
-		Class<?> c = Class.forName(clazz.getName());
-		Enum<?>[] constants = (Enum<?>[]) c.getEnumConstants();
-		
+	public static Enum<?> getEnum(Class<?> clazz, String constant) {
+		Enum<?>[] constants = (Enum<?>[]) clazz.getEnumConstants();
+
 		for(Enum<?> e : constants) {
 			if(e.name().equalsIgnoreCase(constant)) {
 				return e;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Get an Enum constant by it's name and constant
 	 * @param clazz The Class in which the Enum is defined
 	 * @param enumname The name of the Enum
 	 * @param constant The name of the Constant
-	 * @return Returns the Enum
-	 * @throws ClassNotFoundException
+	 * @return Returns the Enum or null if the Enum does not have a member called <i>constant</i>
+	 * @throws ClassNotFoundException If the Class does not have an Enum called <i>enumname</i>
 	 */
 	public static Enum<?> getEnum(Class<?> clazz, String enumname, String constant) throws ClassNotFoundException {
 	    Class<?> c = Class.forName(clazz.getName() + "$" + enumname);
-	    Enum<?>[] econstants = (Enum<?>[]) c.getEnumConstants();
-	    
-	    for (Enum<?> e : econstants) {
-	        if (e.name().equalsIgnoreCase(constant)) {
-	            return e;
-	        }
-	    }
-	
-	    return null;
+	    return getEnum(c, constant);
 	}
-	
+
 	/**
 	 * Get a Field
 	 * @param clazz The Class in which the Field is defined
