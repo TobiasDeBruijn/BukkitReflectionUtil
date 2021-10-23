@@ -144,7 +144,6 @@ public class ReflectionUtil {
 	    m.setAccessible(true);
 	    return m;
 	}
-	
 	/**
 	 * Invoke a Method which takes no arguments. The Class in which the Method is defined is derived from the provided Object
 	 * @param obj The object to invoke the method on
@@ -156,10 +155,9 @@ public class ReflectionUtil {
 	 * @throws InvocationTargetException
 	 */
 	public static Object invokeMethod(Object obj, String methodName) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Method m = getMethod(obj.getClass(), methodName);
-		return m.invoke(obj);
+		return invokeMethod(obj.getClass(), obj, methodName);
 	}
-	
+
 	/**
 	 * Invoke a Method where the argument types are derived from the provided arguments. The Class in which the Method is defined is derived from the provided Object
 	 * @param obj The object to invoke the method on
@@ -174,7 +172,7 @@ public class ReflectionUtil {
 	public static Object invokeMethod(Object obj, String methodName, Object[] args) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return invokeMethod(obj.getClass(), obj, methodName, args);
 	}
-	
+
 	/**
 	 * Invoke a Method where the argument types are explicitly given (Helpful when working with primitives). The Class in which the Method is defined is derived from the provided Object.
 	 * @param obj The Object to invoke the method on
@@ -188,10 +186,9 @@ public class ReflectionUtil {
 	 * @throws InvocationTargetException
 	 */
 	public static Object invokeMethod(Object obj, String methodName, Class<?>[] argTypes, Object[] args) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		Method m = getMethod(obj.getClass(), methodName, argTypes);
-		return m.invoke(obj, args);
+		return invokeMethod(obj.getClass(), obj, methodName, argTypes, args);
 	}
-	
+
 	/**
 	 * Invoke a Method where the Class where to find the method is explicitly given (Helpful if the method is located in a superclass). The argument types are derived from the provided arguments
 	 * @param clazz The Class where the method is located
@@ -209,12 +206,10 @@ public class ReflectionUtil {
 		for(int i = 0; i < args.length; i++) {
 			argTypes[i] = args[i].getClass();
 		}
-		
-		Method m = getMethod(clazz, methodName, argTypes);
-		
-		return m.invoke(obj, args);
+
+		return invokeMethod(clazz, obj, methodName, argTypes, args);
 	}
-	
+
 	/**
 	 * Invoke a Method where the Class where the Method is defined is explicitly given, and the argument types are explicitly given
 	 * @param clazz The Class in which the Method is located
@@ -232,7 +227,7 @@ public class ReflectionUtil {
 		Method m = getMethod(clazz, methodName, argTypes);
 		return m.invoke(obj, args);
 	}
-	
+
 	/**
 	 * Get the value of a Field, where the Class in which the field is defined is derived from the provided Object
 	 * @param obj The object in which the field is located, and from which to get the value
