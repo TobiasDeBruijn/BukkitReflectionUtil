@@ -1,7 +1,9 @@
 # BukkitReflectionUtil
-Utility to make working with NMS code easier on Spigot
+Utility to make working with NMS code easier on Spigot. Compatible with Minecraft pre-1.16 and post-1.17
 
 [![Maven Central](https://img.shields.io/maven-central/v/dev.array21/bukkit-reflection-util.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22dev.array21%22%20AND%20a:%22bukkit-reflection-util%22)
+[![Build Status](https://drone.k8s.array21.dev/api/badges/TheDutchMC/BukkitReflectionUtil/status.svg)](https://drone.k8s.array21.dev/TheDutchMC/BukkitReflectionUtil)
+
 ## Installation
 BukkitReflectionUtil is available on MavenCentral:
 ```groovy
