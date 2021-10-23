@@ -9,32 +9,33 @@ import java.lang.reflect.Modifier;
 public class ReflectionUtil {
 
 	public static String SERVER_VERSION;
-		
+	private static boolean useNewSpigotPackaging;
+
 	static {
 		try {
 			Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
 			Object serverObject = getMethod(bukkitClass, "getServer").invoke(null);
 			String serverPackageName = serverObject.getClass().getPackage().getName();
-			
+
 			SERVER_VERSION = serverPackageName.substring(serverPackageName.lastIndexOf('.') +1);
-		
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+
+			String major = SERVER_VERSION.split("_")[1];
+			useNewSpigotPackaging = Integer.parseInt(major) >= 17;
+
+		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Check if the new way of packaging Spigot is used<br>
 	 * For >=1.17 this will be true, for =<1.16 this will be false.<br>
-	 * 
+	 *
 	 * This dictates if you should use {@link #getNmsClass(String)} (<=1.16) or {@link #getMinecraftClass(String)} (>=1.17).
 	 * @return Returns true if it is, false if it is now
 	 */
 	public static boolean isUseNewSpigotPackaging() {
-		String major = SERVER_VERSION.split("_")[1];
-		return Integer.valueOf(major) >= 17;
+		return useNewSpigotPackaging;
 	}
 
 	/**
