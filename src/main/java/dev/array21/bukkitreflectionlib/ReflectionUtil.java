@@ -238,10 +238,9 @@ public class ReflectionUtil {
 	 * @throws IllegalAccessException
 	 */
 	public static Object getObject(Object obj, String name) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-		Field f = getField(obj.getClass(), name);
-		return f.get(obj);
+		return getObject(obj.getClass(), obj, name);
 	}
-	
+
 	/**
 	 * Get the value of a Field, where the Class in which the Field is defined is explicitly given. (Helpful when the Field is in a superclass)
 	 * @param obj The Object to get the value from
@@ -251,12 +250,29 @@ public class ReflectionUtil {
 	 * @throws NoSuchFieldException
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
+	 * @deprecated Use {@link #getObject(Class, Object, String)} instead
 	 */
+	@Deprecated
 	public static Object getObject(Object obj, Class<?> clazz, String name) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		return getObject(clazz, obj, name);
+	}
+
+	/**
+	 * Get the value of a Field, where the Class in which the Field is defined is explicitly given. (Helpful when the Field is in a superclass)
+	 * @param clazz The Class in which the Field is defined
+	 * @param obj The Object to get the value from
+	 * @param name The name of the Field
+	 * @return Returns the value of the Field
+	 * @throws NoSuchFieldException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static Object getObject(Class<?> clazz, Object obj, String name) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 		Field f = getField(clazz, name);
+		f.setAccessible(true);
 		return f.get(obj);
 	}
-	
+
 	/**
 	 * Invoke a Class' constructor. The argument types are derived from the provided arguments
 	 * @param clazz The Class in which the Constructor is defined
