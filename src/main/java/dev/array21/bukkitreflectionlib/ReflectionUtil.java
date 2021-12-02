@@ -11,6 +11,7 @@ public class ReflectionUtil {
 
 	public static String SERVER_VERSION;
 	private static boolean useNewSpigotPackaging;
+	private static int majorVersion;
 
 	static {
 		try {
@@ -21,7 +22,9 @@ public class ReflectionUtil {
 			SERVER_VERSION = serverPackageName.substring(serverPackageName.lastIndexOf('.') +1);
 
 			String major = SERVER_VERSION.split("_")[1];
-			useNewSpigotPackaging = Integer.parseInt(major) >= 17;
+
+			majorVersion = Integer.parseInt(major);
+			useNewSpigotPackaging = majorVersion >= 17;
 
 		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
 			e.printStackTrace();
@@ -37,6 +40,16 @@ public class ReflectionUtil {
 	 */
 	public static boolean isUseNewSpigotPackaging() {
 		return useNewSpigotPackaging;
+	}
+
+	/**
+	 * Get the current major Minecraft version.
+	 *
+	 * E.g for Minecraft 1.18 this is 18.
+	 * @return The current major Minecraft version
+	 */
+	public static int getMajorVersion() {
+		return majorVersion;
 	}
 
 	/**
@@ -63,7 +76,7 @@ public class ReflectionUtil {
 	}
 
 	/**
-	 * <strong>1.17 and new only</strong>
+	 * <strong>1.17 and newer only</strong>
 	 *
 	 * Get a Class from the net.minecraft package
 	 * @param className The name of the class
