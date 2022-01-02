@@ -10,8 +10,8 @@ group = "dev.array21"
 
 findProperty('')
 
-sourceCompatibility = "17.PREVIEW"
-targetCompatibility = "17.PREVIEW"
+sourceCompatibility = "17"
+targetCompatibility = "17"
 
 repositories {
 	mavenCentral()

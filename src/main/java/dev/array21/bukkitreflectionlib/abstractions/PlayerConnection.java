@@ -2,8 +2,6 @@ package dev.array21.bukkitreflectionlib.abstractions;
 
 import dev.array21.bukkitreflectionlib.ReflectionUtil;
 
-import java.sql.Ref;
-
 public class PlayerConnection {
 
     private final Object connection;
