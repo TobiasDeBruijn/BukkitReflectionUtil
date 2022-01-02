@@ -10,8 +10,17 @@ group = "dev.array21"
 
 findProperty('')
 
-sourceCompatibility = 1.16
-targetCompatibility = 1.16
+sourceCompatibility = "17.PREVIEW"
+targetCompatibility = "17.PREVIEW"
+
+repositories {
+	mavenCentral()
+	maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots" }
+}
+
+dependencies {
+	compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+}
 
 javadoc.options.addStringOption('Xdoclint:none', '-quiet')
 
