@@ -3,8 +3,6 @@ package dev.array21.bukkitreflectionlib.abstractions;
 import dev.array21.bukkitreflectionlib.ReflectionUtil;
 import org.bukkit.entity.Player;
 
-import java.sql.Ref;
-
 public class CraftPlayer {
 
     protected static Class<?> CLASS;

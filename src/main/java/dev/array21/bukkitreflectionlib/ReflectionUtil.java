@@ -6,12 +6,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 
 public class ReflectionUtil {
 
 	public static String SERVER_VERSION;
 	private static boolean useNewSpigotPackaging;
+
 	private static int majorVersion;
+	private static int minorVersion;
 
 	static {
 		try {
@@ -19,11 +22,15 @@ public class ReflectionUtil {
 			Object serverObject = getMethod(bukkitClass, "getServer").invoke(null);
 			String serverPackageName = serverObject.getClass().getPackage().getName();
 
-			SERVER_VERSION = serverPackageName.substring(serverPackageName.lastIndexOf('.') +1);
+			SERVER_VERSION = serverPackageName.substring(serverPackageName.lastIndexOf('.') + 1);
 
-			String major = SERVER_VERSION.split("_")[1];
+			String[] versionParts = SERVER_VERSION.split(Pattern.quote("_"));
+			String major = versionParts[1];
+			String minor = versionParts[2].replace("R", "");
 
 			majorVersion = Integer.parseInt(major);
+			minorVersion = Integer.parseInt(minor);
+
 			useNewSpigotPackaging = majorVersion >= 17;
 
 		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
@@ -50,6 +57,16 @@ public class ReflectionUtil {
 	 */
 	public static int getMajorVersion() {
 		return majorVersion;
+	}
+
+	/**
+	 * Get the current minor Minecraft version.
+	 *
+	 * E.g. for Minecraft 1.18.2 this is 2.
+	 * @return The current minor Minecraft version
+	 */
+	public static int getMinorVersion() {
+		return minorVersion;
 	}
 
 	/**
