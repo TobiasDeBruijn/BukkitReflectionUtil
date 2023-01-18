@@ -113,10 +113,20 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                             boolean.class,
                     };
                 }
-                case 19 -> {
-                    DimensionManager dimensionManager = craftWorld.getDimensionManager();
-                    yield new Class<?>[] {
-                            dimensionManager.inner().getClass(),
+                case 19 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 3 -> new Class<?>[] {
+                            craftWorld.getDimensionManager().inner().getClass(),
+                            dimensionKey.inner().getClass(),
+                            long.class,
+                            enumGamemode.inner().getClass(),
+                            enumGamemode.inner().getClass(),
+                            boolean.class,
+                            boolean.class,
+                            byte.class,
+                            Optional.class
+                    };
+                    default -> new Class<?>[]{
+                            craftWorld.getDimensionManager().inner().getClass(),
                             dimensionKey.inner().getClass(),
                             long.class,
                             enumGamemode.inner().getClass(),
@@ -126,7 +136,7 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                             boolean.class,
                             Optional.class
                     };
-                }
+                };
                 default -> throw new RuntimeException("Unsupported version");
             };
         } catch (Exception e) {
@@ -175,16 +185,29 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                         isFlatWorld,
                         true,
                 };
-                case 19 -> new Object[] {
-                        dimensionManager.inner(),
-                        dimensionKey.inner(),
-                        seedHash.inner(),
-                        gamemode.inner(),
-                        gamemode.inner(),
-                        isDebugWorld,
-                        isFlatWorld,
-                        true,
-                        Optional.empty(),
+                case 19 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 3 -> new Object[] {
+                            dimensionManager.inner(),
+                            dimensionKey.inner(),
+                            seedHash.inner(),
+                            gamemode.inner(),
+                            gamemode.inner(),
+                            isDebugWorld,
+                            isFlatWorld,
+                            (byte) 0xFF, // I *think* its a bitflag byte to determine what data to keep. Setting it to 0xFF should just keep everything?
+                            Optional.empty(),
+                    };
+                    default -> new Object[] {
+                            dimensionManager.inner(),
+                            dimensionKey.inner(),
+                            seedHash.inner(),
+                            gamemode.inner(),
+                            gamemode.inner(),
+                            isDebugWorld,
+                            isFlatWorld,
+                            true,
+                            Optional.empty(),
+                    };
                 };
                 default -> throw new RuntimeException("Unsupported version");
             };

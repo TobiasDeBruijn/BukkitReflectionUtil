@@ -27,7 +27,10 @@ public record CraftWorld(Object inner) {
     public boolean isDebugWorld() throws ReflectException {
         try {
             return (boolean) switch(ReflectionUtil.getMajorVersion()) {
-                case 19 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "ae");
+                case 19 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 3 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "af");
+                    default -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "ae");
+                };
                 case 18 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "ad");
                 case 16, 17 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "isDebugWorld");
                 default -> throw new RuntimeException("Unsupported version");

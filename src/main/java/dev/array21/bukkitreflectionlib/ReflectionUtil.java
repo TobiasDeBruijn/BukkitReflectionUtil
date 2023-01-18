@@ -1,5 +1,7 @@
 package dev.array21.bukkitreflectionlib;
 
+import org.bukkit.Bukkit;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -10,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class ReflectionUtil {
 
-	public static String SERVER_VERSION;
+	public static String LEGACY_SERVER_VERSION;
 	private static boolean useNewSpigotPackaging;
 
 	private static int majorVersion;
@@ -18,22 +20,29 @@ public class ReflectionUtil {
 
 	static {
 		try {
+			// Legacy support
 			Class<?> bukkitClass = Class.forName("org.bukkit.Bukkit");
 			Object serverObject = getMethod(bukkitClass, "getServer").invoke(null);
 			String serverPackageName = serverObject.getClass().getPackage().getName();
 
-			SERVER_VERSION = serverPackageName.substring(serverPackageName.lastIndexOf('.') + 1);
+			LEGACY_SERVER_VERSION = serverPackageName.substring(serverPackageName.lastIndexOf('.') + 1);
 
-			String[] versionParts = SERVER_VERSION.split(Pattern.quote("_"));
+			// example: Bukkit version: 3638-Spigot-d90018e-7dcb59b (MC: 1.19.3)
+			String version = Bukkit.getVersion();
+
+			String[] parts = version.split(Pattern.quote("(MC: "));
+			String[] versionParts = parts[1].split(Pattern.quote("."));
+
 			String major = versionParts[1];
-			String minor = versionParts[2].replace("R", "");
+			String minor = versionParts[2].replace(")", "");
 
 			majorVersion = Integer.parseInt(major);
 			minorVersion = Integer.parseInt(minor);
 
 			useNewSpigotPackaging = majorVersion >= 17;
 
-		} catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (IllegalArgumentException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException |
+				 InvocationTargetException e) {
 			e.printStackTrace();
 		}
 	}
@@ -76,7 +85,7 @@ public class ReflectionUtil {
 	 * @throws ClassNotFoundException Thrown when the Class was not found
 	 */
 	public static Class<?> getBukkitClass(String className) throws ClassNotFoundException {
-		return Class.forName("org.bukkit.craftbukkit." + SERVER_VERSION + "." + className);
+		return Class.forName("org.bukkit.craftbukkit." + LEGACY_SERVER_VERSION + "." + className);
 	}
 
 	/**
@@ -89,7 +98,7 @@ public class ReflectionUtil {
 	 */
 	@Deprecated
 	public static Class<?> getNmsClass(String className) throws ClassNotFoundException {
-		return Class.forName("net.minecraft.server." + SERVER_VERSION + "." + className);
+		return Class.forName("net.minecraft.server." + LEGACY_SERVER_VERSION + "." + className);
 	}
 
 	/**

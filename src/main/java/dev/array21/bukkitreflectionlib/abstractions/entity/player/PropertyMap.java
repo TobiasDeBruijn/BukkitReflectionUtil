@@ -12,7 +12,6 @@ public record PropertyMap(Object inner) {
     static PropertyMap getInstance(GameProfile gameProfile) throws ReflectException {
         try {
             Object inner = ReflectionUtil.invokeMethod(gameProfile.inner(), "getProperties");
-
             return new PropertyMap(inner);
         } catch (Exception e) {
             throw new ReflectException(e);
@@ -29,8 +28,6 @@ public record PropertyMap(Object inner) {
 
     public void removeTexturesKey() throws ReflectException {
         try {
-
-
             Object textures = ReflectionUtil.invokeMethod(FORWARDING_MULTIMAP, this.inner, "get", new Class<?>[] { Object.class }, new Object[] { "textures" });
             Object texturesIter = ReflectionUtil.invokeMethod(Collection.class, textures, "iterator");
             Object iterNext = ReflectionUtil.invokeMethod(texturesIter, "next");
