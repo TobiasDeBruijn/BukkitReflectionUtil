@@ -7,7 +7,12 @@ import dev.array21.bukkitreflectionlib.exceptions.ReflectException;
 import java.lang.reflect.Array;
 
 /**
- * Packet to inform the client about information of the player
+ * Packet to inform the client about information of the player.
+ * <br/>
+ * <br/>
+ * <strong> Deprecation </strong> <br/>
+ * As of 1.19.3, this packet no longer exists. Instead use {@link ClientboundPlayerInfoRemovePacket} and {@link ClientboundPlayerInfoUpdatePacket}
+ *
  * @param inner The inner object
  */
 public record PlayerOutInfoPacket(Object inner) implements Packet {

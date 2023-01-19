@@ -1,14 +1,17 @@
 package dev.array21.bukkitreflectionlib.abstractions.entity.player;
 
 import dev.array21.bukkitreflectionlib.ReflectionUtil;
+import dev.array21.bukkitreflectionlib.abstractions.chat.IChatBaseComponent;
+import dev.array21.bukkitreflectionlib.abstractions.chat.RemoteChatSession;
 import dev.array21.bukkitreflectionlib.exceptions.ReflectException;
 import org.bukkit.entity.Player;
 
 /**
- * The NMS version of the Player
+ * The NMS version of the Player.
+ * This is equal to <code>net.minecraft.server.level.EntityPlayer</code>
  * @param inner The inner object
  */
-public record CraftPlayer(Object inner) {
+public record CraftPlayer(Object inner, Player bukkitPlayer) {
     /**
      * Get an instance for the Player
      * @param player The Player
@@ -20,10 +23,18 @@ public record CraftPlayer(Object inner) {
             final Class<?> clazz = ReflectionUtil.getBukkitClass("entity.CraftPlayer");
             final Object entityPlayer = ReflectionUtil.invokeMethod(clazz, player, "getHandle");
 
-            return new CraftPlayer(entityPlayer);
+            return new CraftPlayer(entityPlayer, player);
         } catch (Exception e) {
             throw new ReflectException(e);
         }
+    }
+
+    public IChatBaseComponent getChatBaseComponent() throws ReflectException {
+        return IChatBaseComponent.getInstance(this);
+    }
+
+    public RemoteChatSession getChatSession() throws ReflectException {
+        return RemoteChatSession.getInstance(this);
     }
 
     /**
