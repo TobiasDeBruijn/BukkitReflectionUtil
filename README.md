@@ -1,5 +1,5 @@
 # BukkitReflectionUtil
-Utility to make working with NMS code easier on Spigot. Compatible with Minecraft versions 1.16+.
+Utility to make working with NMS code easier on Spigot. Compatible with (most) Minecraft versions 1.16+.
 
 This library also provides some abstractions over NMS. Feel free to PR more, I add the abstractions when I need them in projects using this library.
 
