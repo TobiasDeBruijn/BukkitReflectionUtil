@@ -17,6 +17,7 @@ public record GameProfile(Object inner) {
                 case 19 -> switch(ReflectionUtil.getMinorVersion()) {
                     case 1, 2 -> ReflectionUtil.invokeMethod(entityHumanClass, craftPlayer.inner(), "fy");
                     case 3 -> ReflectionUtil.invokeMethod(entityHumanClass, craftPlayer.inner(), "fD");
+                    case 4 -> ReflectionUtil.invokeMethod(entityHumanClass, craftPlayer.inner(), "fI");
                     default -> ReflectionUtil.invokeMethod(entityHumanClass, craftPlayer.inner(), "fz");
                 };
                 default -> throw new RuntimeException("Unsupported version");

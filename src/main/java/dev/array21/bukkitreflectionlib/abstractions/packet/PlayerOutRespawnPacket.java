@@ -114,7 +114,7 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                     };
                 }
                 case 19 -> switch(ReflectionUtil.getMinorVersion()) {
-                    case 3 -> new Class<?>[] {
+                    case 3, 4 -> new Class<?>[] {
                             craftWorld.getDimensionManager().inner().getClass(),
                             dimensionKey.inner().getClass(),
                             long.class,
@@ -125,7 +125,7 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                             byte.class,
                             Optional.class
                     };
-                    default -> new Class<?>[]{
+                    default -> new Class<?>[] {
                             craftWorld.getDimensionManager().inner().getClass(),
                             dimensionKey.inner().getClass(),
                             long.class,
@@ -186,7 +186,7 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                         true,
                 };
                 case 19 -> switch(ReflectionUtil.getMinorVersion()) {
-                    case 3 -> new Object[] {
+                    case 3, 4 -> new Object[] {
                             dimensionManager.inner(),
                             dimensionKey.inner(),
                             seedHash.inner(),

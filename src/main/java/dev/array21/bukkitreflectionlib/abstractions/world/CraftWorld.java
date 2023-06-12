@@ -43,7 +43,10 @@ public record CraftWorld(Object inner) {
     public boolean isFlatWorld() throws ReflectException {
         try {
             return (boolean) switch(ReflectionUtil.getMajorVersion()) {
-                case 19 -> ReflectionUtil.invokeMethod(this.inner, "A");
+                case 19 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 4 -> ReflectionUtil.invokeMethod(this.inner, "z");
+                    default -> ReflectionUtil.invokeMethod(this.inner, "A");
+                };
                 case 18 -> switch(ReflectionUtil.getMinorVersion()) {
                     case 2 -> ReflectionUtil.invokeMethod(this.inner, "C");
                     default -> ReflectionUtil.invokeMethod(this.inner, "D");
