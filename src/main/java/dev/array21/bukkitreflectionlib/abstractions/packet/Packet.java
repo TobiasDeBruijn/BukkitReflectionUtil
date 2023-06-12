@@ -4,8 +4,6 @@ import dev.array21.bukkitreflectionlib.ReflectionUtil;
 import dev.array21.bukkitreflectionlib.abstractions.entity.player.PlayerConnection;
 import dev.array21.bukkitreflectionlib.exceptions.ReflectException;
 
-import java.util.Objects;
-
 public interface Packet {
     Object getInner();
 
@@ -24,12 +22,12 @@ public interface Packet {
                         "sendPacket",
                         new Class<?>[] { getPacketClass() },
                         new Object[] { packetInner });
-                case 18, 19 -> ReflectionUtil.invokeMethod(
+                case 18, 19, 20 -> ReflectionUtil.invokeMethod(
                         playerConnection.inner(),
                         "a",
                         new Class<?>[] { getPacketClass() },
                         new Object[] { packetInner });
-                default -> throw new RuntimeException("Unsupported version");
+                default -> throw new RuntimeException("Unsupported major version");
             }
         } catch (Exception e) {
             throw new ReflectException(e);

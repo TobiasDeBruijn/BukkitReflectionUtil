@@ -10,7 +10,11 @@ public record PlayerConnection(Object inner) {
             Object inner;
 
             if(ReflectionUtil.isUseNewSpigotPackaging()) {
-                inner = ReflectionUtil.getObject(craftPlayer.inner(), "b");
+                inner = switch(ReflectionUtil.getMajorVersion()) {
+                    case 17, 18, 19 -> ReflectionUtil.getObject(craftPlayer.inner(), "b");
+                    case 20 -> ReflectionUtil.getObject(craftPlayer.inner(), "c");
+                    default -> throw new RuntimeException("Unsupported major version");
+                };
             } else {
                 inner = ReflectionUtil.getObject(craftPlayer.inner(), "playerConnection");
             }

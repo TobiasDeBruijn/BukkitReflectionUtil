@@ -33,8 +33,15 @@ public class ReflectionUtil {
 			String[] parts = version.split(Pattern.quote("(MC: "));
 			String[] versionParts = parts[1].split(Pattern.quote("."));
 
-			String major = versionParts[1];
-			String minor = versionParts[2].replace(")", "");
+			// There's a minor version
+			String major, minor;
+			if(versionParts.length > 2) {
+				major = versionParts[1];
+				minor = versionParts[2].replace(")", "");
+			} else {
+				major = versionParts[1].replace(")", "");
+				minor = "0";
+			}
 
 			majorVersion = Integer.parseInt(major);
 			minorVersion = Integer.parseInt(minor);

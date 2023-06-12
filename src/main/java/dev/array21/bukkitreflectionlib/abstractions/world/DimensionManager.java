@@ -14,7 +14,7 @@ public record DimensionManager(Object inner) {
                     Class<?> holderClass = ReflectionUtil.getMinecraftClass("core.Holder");
                     yield ReflectionUtil.invokeMethod(holderClass, null, "a", new Class<?>[] { Object.class }, new Object[] { dimensionManagerRaw});
                 }
-                case 19 -> {
+                case 19, 20 -> {
                     Field f = craftWorld.inner().getClass().getSuperclass().getDeclaredField("D");
                     f.setAccessible(true);
                     yield f.get(craftWorld.inner());

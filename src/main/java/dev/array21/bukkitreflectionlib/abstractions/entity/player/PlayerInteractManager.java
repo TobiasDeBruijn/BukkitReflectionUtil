@@ -9,7 +9,10 @@ public record PlayerInteractManager(Object inner) {
 
         try {
             if (ReflectionUtil.isUseNewSpigotPackaging()) {
-                o = ReflectionUtil.getObject(craftPlayer.inner(), "d");
+                o = switch(ReflectionUtil.getMajorVersion()) {
+                    case 20 -> ReflectionUtil.getObject(craftPlayer.inner(), "e");
+                    default -> ReflectionUtil.getObject(craftPlayer.inner(), "d");
+                };
             } else {
                 o = ReflectionUtil.getObject(craftPlayer.inner(), "playerInteractManager");
             }

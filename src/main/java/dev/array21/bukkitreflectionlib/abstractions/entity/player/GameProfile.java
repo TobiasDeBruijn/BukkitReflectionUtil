@@ -20,6 +20,10 @@ public record GameProfile(Object inner) {
                     case 4 -> ReflectionUtil.invokeMethod(entityHumanClass, craftPlayer.inner(), "fI");
                     default -> ReflectionUtil.invokeMethod(entityHumanClass, craftPlayer.inner(), "fz");
                 };
+                case 20 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 0 -> ReflectionUtil.invokeMethod(entityHumanClass, craftPlayer.inner(), "fM");
+                    default -> throw new RuntimeException("Unsupported version");
+                };
                 default -> throw new RuntimeException("Unsupported version");
             };
 
@@ -38,7 +42,7 @@ public record GameProfile(Object inner) {
         try {
             return switch (ReflectionUtil.getMajorVersion()) {
                 case 16 -> ReflectionUtil.getNmsClass("EntityHuman");
-                case 17, 18, 19 -> ReflectionUtil.getMinecraftClass("world.entity.player.EntityHuman");
+                case 17, 18, 19, 20 -> ReflectionUtil.getMinecraftClass("world.entity.player.EntityHuman");
                 default -> throw new RuntimeException("Unsupported version");
             };
         } catch (Exception e) {

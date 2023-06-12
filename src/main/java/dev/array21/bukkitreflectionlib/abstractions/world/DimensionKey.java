@@ -11,7 +11,7 @@ public record DimensionKey(Object inner) {
             Object inner = switch(ReflectionUtil.getMajorVersion()) {
                 case 16, 17 -> ReflectionUtil.invokeMethod(craftWorld.inner().getClass().getSuperclass(), craftWorld.inner(), "getDimensionKey");
                 case 18 -> ReflectionUtil.invokeMethod(craftWorld.inner().getClass().getSuperclass(), craftWorld.inner(), "aa");
-                case 19 -> {
+                case 19, 20 -> {
                     Field f = craftWorld.inner().getClass().getSuperclass().getDeclaredField("I");
                     f.setAccessible(true);
                     yield f.get(craftWorld.inner());

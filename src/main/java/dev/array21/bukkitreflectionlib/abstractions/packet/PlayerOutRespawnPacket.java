@@ -40,7 +40,7 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                             getPlayerRespawnPacketConstructorClasses(craftWorld, dimensionKey, enumGamemode),
                             getPlayerRespawnPacketConstructorArguments(craftWorld, gamemode, dimensionKey, craftWorld.getDimensionManager(), seedHash));
                 };
-                case 17, 18, 19 -> ReflectionUtil.invokeConstructor(
+                case 17, 18, 19, 20 -> ReflectionUtil.invokeConstructor(
                         packetClass,
                         getPlayerRespawnPacketConstructorClasses(craftWorld, dimensionKey, enumGamemode),
                         getPlayerRespawnPacketConstructorArguments(craftWorld, gamemode, dimensionKey, craftWorld.getDimensionManager(), seedHash));
@@ -137,7 +137,22 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                             Optional.class
                     };
                 };
-                default -> throw new RuntimeException("Unsupported version");
+                case 20 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 0 -> new Class<?>[] {
+                            craftWorld.getDimensionManager().inner().getClass(),
+                            dimensionKey.inner().getClass(),
+                            long.class,
+                            enumGamemode.inner().getClass(),
+                            enumGamemode.inner().getClass(),
+                            boolean.class,
+                            boolean.class,
+                            byte.class,
+                            Optional.class,
+                            int.class,
+                    };
+                    default -> throw new RuntimeException("Unsupported minor version");
+                };
+                default -> throw new RuntimeException("Unsupported major version");
             };
         } catch (Exception e) {
             throw new ReflectException(e);
@@ -208,6 +223,21 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                             true,
                             Optional.empty(),
                     };
+                };
+                case 20 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 0 -> new Object[] {
+                            dimensionManager.inner(),
+                            dimensionKey.inner(),
+                            seedHash.inner(),
+                            gamemode.inner(),
+                            gamemode.inner(),
+                            isDebugWorld,
+                            isFlatWorld,
+                            (byte) 0xFF, // I *think* its a bitflag byte to determine what data to keep. Setting it to 0xFF should just keep everything?
+                            Optional.empty(),
+                            0, // Portal cooldown
+                    };
+                    default -> throw new RuntimeException("Unsupported version");
                 };
                 default -> throw new RuntimeException("Unsupported version");
             };

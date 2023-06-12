@@ -27,12 +27,13 @@ public record CraftWorld(Object inner) {
     public boolean isDebugWorld() throws ReflectException {
         try {
             return (boolean) switch(ReflectionUtil.getMajorVersion()) {
+                case 16, 17 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "isDebugWorld");
+                case 18 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "ad");
                 case 19 -> switch(ReflectionUtil.getMinorVersion()) {
                     case 3 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "af");
                     default -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "ae");
                 };
-                case 18 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "ad");
-                case 16, 17 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "isDebugWorld");
+                case 20 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "af");
                 default -> throw new RuntimeException("Unsupported version");
             };
         } catch (Exception e) {
@@ -43,15 +44,19 @@ public record CraftWorld(Object inner) {
     public boolean isFlatWorld() throws ReflectException {
         try {
             return (boolean) switch(ReflectionUtil.getMajorVersion()) {
-                case 19 -> switch(ReflectionUtil.getMinorVersion()) {
-                    case 4 -> ReflectionUtil.invokeMethod(this.inner, "z");
-                    default -> ReflectionUtil.invokeMethod(this.inner, "A");
-                };
+                case 16, 17 -> ReflectionUtil.invokeMethod(this.inner, "isFlatWorld");
                 case 18 -> switch(ReflectionUtil.getMinorVersion()) {
                     case 2 -> ReflectionUtil.invokeMethod(this.inner, "C");
                     default -> ReflectionUtil.invokeMethod(this.inner, "D");
                 };
-                case 16, 17 -> ReflectionUtil.invokeMethod(this.inner, "isFlatWorld");
+                case 19 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 4 -> ReflectionUtil.invokeMethod(this.inner, "z");
+                    default -> ReflectionUtil.invokeMethod(this.inner, "A");
+                };
+                case 20 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 0 -> ReflectionUtil.invokeMethod(this.inner, "z");
+                    default -> throw new RuntimeException("Unsupported version");
+                };
                 default -> throw new RuntimeException("Unsupported version");
             };
         } catch (Exception e) {

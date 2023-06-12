@@ -26,23 +26,26 @@ public record PlayerOutPositionPacket(Object inner) implements Packet {
             if(ReflectionUtil.isUseNewSpigotPackaging()) {
                 inner = switch(ReflectionUtil.getMajorVersion()) {
                     case 19 -> switch(ReflectionUtil.getMinorVersion()) {
-                        case 4 -> ReflectionUtil.invokeConstructor(clazz,
-                                new Class<?>[] { double.class, double.class, double.class, float.class, float.class, Set.class, int.class },
-                                new Object[] { location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), new HashSet<Enum<?>>(), 0 });
+                        case 4 -> getOldPackagingAndPostEqual1_19_4(clazz, location);
                         default -> getInnerNewPackagingBefore1_19_4(clazz, location);
                     };
+                    case 20 -> getOldPackagingAndPostEqual1_19_4(clazz, location);
                     default -> getInnerNewPackagingBefore1_19_4(clazz, location);
                 };
             } else {
-                inner = ReflectionUtil.invokeConstructor(clazz,
-                        new Class<?>[] { double.class, double.class, double.class, float.class, float.class, Set.class, int.class },
-                        new Object[] { location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), new HashSet<Enum<?>>(), 0 });
+                inner = getOldPackagingAndPostEqual1_19_4(clazz, location);
             }
 
             return new PlayerOutPositionPacket(inner);
         } catch (Exception e) {
             throw new ReflectException(e);
         }
+    }
+
+    public static Object getOldPackagingAndPostEqual1_19_4(Class<?> clazz, Location location) throws Exception {
+        return ReflectionUtil.invokeConstructor(clazz,
+                new Class<?>[] { double.class, double.class, double.class, float.class, float.class, Set.class, int.class },
+                new Object[] { location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), new HashSet<Enum<?>>(), 0 });
     }
 
     private static Object getInnerNewPackagingBefore1_19_4(Class<?> clazz, Location location) throws Exception {
