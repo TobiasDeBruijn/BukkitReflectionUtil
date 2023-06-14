@@ -138,7 +138,7 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                     };
                 };
                 case 20 -> switch(ReflectionUtil.getMinorVersion()) {
-                    case 0 -> new Class<?>[] {
+                    case 0, 1 -> new Class<?>[] {
                             craftWorld.getDimensionManager().inner().getClass(),
                             dimensionKey.inner().getClass(),
                             long.class,
@@ -225,7 +225,7 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                     };
                 };
                 case 20 -> switch(ReflectionUtil.getMinorVersion()) {
-                    case 0 -> new Object[] {
+                    case 0, 1 -> new Object[] {
                             dimensionManager.inner(),
                             dimensionKey.inner(),
                             seedHash.inner(),
@@ -237,9 +237,9 @@ public record PlayerOutRespawnPacket(Object inner) implements Packet{
                             Optional.empty(),
                             0, // Portal cooldown
                     };
-                    default -> throw new RuntimeException("Unsupported version");
+                    default -> throw new RuntimeException("Unsupported minor version");
                 };
-                default -> throw new RuntimeException("Unsupported version");
+                default -> throw new RuntimeException("Unsupported major version");
             };
         } catch (Exception e) {
             throw new ReflectException(e);

@@ -33,8 +33,11 @@ public record CraftWorld(Object inner) {
                     case 3 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "af");
                     default -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "ae");
                 };
-                case 20 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "af");
-                default -> throw new RuntimeException("Unsupported version");
+                case 20 -> switch(ReflectionUtil.getMinorVersion()) {
+                    case 0, 1 -> ReflectionUtil.invokeMethod(this.inner.getClass().getSuperclass(), this.inner, "af");
+                    default -> throw new RuntimeException("Unsupported minor version");
+                };
+                default -> throw new RuntimeException("Unsupported major version");
             };
         } catch (Exception e) {
             throw new ReflectException(e);
@@ -54,10 +57,10 @@ public record CraftWorld(Object inner) {
                     default -> ReflectionUtil.invokeMethod(this.inner, "A");
                 };
                 case 20 -> switch(ReflectionUtil.getMinorVersion()) {
-                    case 0 -> ReflectionUtil.invokeMethod(this.inner, "z");
-                    default -> throw new RuntimeException("Unsupported version");
+                    case 0, 1 -> ReflectionUtil.invokeMethod(this.inner, "z");
+                    default -> throw new RuntimeException("Unsupported minor version");
                 };
-                default -> throw new RuntimeException("Unsupported version");
+                default -> throw new RuntimeException("Unsupported major version");
             };
         } catch (Exception e) {
             throw new ReflectException(e);
